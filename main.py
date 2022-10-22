@@ -1,13 +1,13 @@
 import cv2
 import os
+import tkinter.filedialog
+from tkinter import ttk
+from tkinter import *
 
-path = "./venv/Videos/Sogan Acisi Belgesel.mp4"
-path2 = "./venv/Videos/device.mov"
-
-list1 = [path, path2]
+video_list = []
 
 
-def duration(filename):
+def duration_calculate(filename):
     video = cv2.VideoCapture(filename)
     basename = os.path.basename(filename)
 
@@ -43,13 +43,45 @@ def duration(filename):
     return formatted_value
 
 
-final_text = ""
+def add_file():
+    file = tkinter.filedialog.askopenfilenames(title='Choose Files')
+    root.splitlist(file)
+    global video_list
+    video_list = file
 
-for item in list1:
-    duration(item)
-    final_text = final_text + duration(item)
+    for item in video_list:
+        item = os.path.basename(item)
+        file_list.insert(END, item)
 
-print(final_text)
+    return video_list
 
-with open('duration.txt', 'w') as f:
-    f.write(final_text)
+
+def start_process():
+    save_path = tkinter.filedialog.asksaveasfilename(title='Choose Folder') + ".txt"
+    duration_text = ""
+
+    for item in video_list:
+        duration_calculate(item)
+        duration_text = duration_text + duration_calculate(item)
+
+    # write to disk
+    print(duration_text)
+
+    with open(save_path, 'w') as f:
+        f.write(duration_text)
+
+
+# GUI
+root = Tk()
+root.title("Timecode Exporter")
+
+my_label = Label(root, text="Files")
+my_label.pack()
+
+file_list = Listbox(root)
+file_list.pack()
+
+ttk.Button(root, text="Add Files", command=add_file).pack(side=LEFT)
+ttk.Button(root, text="Save Timecodes", command=start_process).pack(side=LEFT)
+
+root.mainloop()
