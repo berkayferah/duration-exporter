@@ -1,8 +1,9 @@
 import cv2
 import os
 import tkinter.filedialog
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from tkinter import *
+
 
 video_list = []
 
@@ -57,18 +58,24 @@ def add_file():
 
 
 def start_process():
-    save_path = tkinter.filedialog.asksaveasfilename(title='Choose Folder') + ".txt"
-    duration_text = ""
+    if len(video_list) < 1:
+        messagebox.showinfo("Message", "Please add video files")
+    else:
+        save_path = tkinter.filedialog.asksaveasfilename(title='Choose Folder') + ".txt"
+        if save_path == ".txt":
+            return
+        else:
+            duration_text = ""
 
-    for item in video_list:
-        duration_calculate(item)
-        duration_text = duration_text + duration_calculate(item)
+            for item in video_list:
+                duration_calculate(item)
+                duration_text = duration_text + duration_calculate(item)
 
-    # write to disk
-    print(duration_text)
+            # write to disk
+            with open(save_path, 'w') as f:
+                f.write(duration_text)
 
-    with open(save_path, 'w') as f:
-        f.write(duration_text)
+            messagebox.showinfo("Message", "Timecodes successfully saved to destination")
 
 
 # GUI
@@ -81,7 +88,10 @@ my_label.pack()
 file_list = Listbox(root)
 file_list.pack()
 
-ttk.Button(root, text="Add Files", command=add_file).pack(side=LEFT)
-ttk.Button(root, text="Save Timecodes", command=start_process).pack(side=LEFT)
+add_button = ttk.Button(root, text="Add Files", command=add_file)
+add_button.pack(side=LEFT)
+
+save_button = ttk.Button(root, text="Save Timecodes", command=start_process)
+save_button.pack(side=LEFT)
 
 root.mainloop()
